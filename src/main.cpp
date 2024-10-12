@@ -1,18 +1,42 @@
 #include <Arduino.h>
+#include <Servo.h>
+#include <SoftwareSerial.h>
 
-// put function declarations here:
-int myFunction(int, int);
+// Servo
+Servo servo;
+const int servoPin = 9;
+char command;
+
+// Bluetooth
+SoftwareSerial BT(2, 3); // RX, TX
+
+// functions declaration
+void openServo();
+void closeServo();
 
 void setup() {
-  // put your setup code here, to run once:
-  int result = myFunction(2, 3);
+  servo.attach(servoPin);
+  BT.begin(38400);
+  closeServo();
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
+  if(BT.available() > 0) {
+    command = BT.read();
+  }
+
+  if (command == 'O') {
+    openServo();
+  } else if (command == 'C') {
+    closeServo();
+  }
 }
 
-// put function definitions here:
-int myFunction(int x, int y) {
-  return x + y;
+// Servo functions
+void openServo() {
+  servo.write(90);
+}
+
+void closeServo() {
+  servo.write(0);
 }
