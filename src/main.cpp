@@ -5,7 +5,7 @@
 
 // Servo
 Servo servo;
-const int servoPin = 9;
+const int servoPin = 5;
 char command;
 
 // Bluetooth
@@ -22,6 +22,8 @@ const int trigPin4 = 7;
 const int echoPin4 = 6;
 const int maxDistance = 200;
 int distance = 0;
+String sensorData = "";
+String previousData = "";
 
 NewPing lotA1(trigPin1, echoPin1, maxDistance);
 NewPing lotA2(trigPin2, echoPin2, maxDistance);
@@ -49,52 +51,37 @@ void loop() {
   }
 
   if (command == 'O') {
-    BT.write(command);
     openServo();
+    Serial.println("Servo opened::" + command);
+    BT.println("Servo opened::" + command);
   } else if (command == 'C') {
-    BT.write(command);
     closeServo();
+    Serial.println("Servo closed::" + command);
+    BT.println("Servo closed::" + command);
   }
 
   // Ultrasonic sensor system
+  sensorData = "";
+
   distance = lotA1.ping_cm();
-  if (distance < 4) {
-    Serial.println(distance);
-    Serial.println("Lot A1 is occupied");
-    BT.println("A1a");
-  } else {
-    Serial.println(distance);
-    Serial.println("Lot A1 is vacant");
-    BT.println("A1o");
+  sensorData += (distance < 4) ? "0|" : "1|";
+  
+  distance = lotA2.ping_cm();
+  sensorData += (distance < 4) ? "0|" : "1|";
+  
+  distance = lotB1.ping_cm();
+  sensorData += (distance < 4) ? "0|" : "1|";
+  
+  distance = lotB2.ping_cm();
+  sensorData += (distance < 4) ? "0" : "1";
+
+  if (sensorData != previousData) {
+    Serial.println("Data:: " + sensorData);
+    BT.println(sensorData);
+    previousData = sensorData;
   }
 
-  // distance = lotA1.ping_cm();
-  // if (distance < 5) {
-  //   Serial.println("Lot A1 is occupied");
-  // } else {
-  //   Serial.println("Lot A1 is vacant");
-  // }
-
-  // distance = lotA2.ping_cm();
-  // if (distance < 5) {
-  //   Serial.println("Lot A2 is occupied");
-  // } else {
-  //   Serial.println("Lot A2 is vacant");
-  // }
-  
-  // distance = lotB1.ping_cm();
-  // if (distance < 5) {
-  //   Serial.println("Lot B1 is occupied");
-  // } else {
-  //   Serial.println("Lot B1 is vacant");
-  // }
-  
-  // distance = lotB2.ping_cm();
-  // if (distance < 5) {
-  //   Serial.println("Lot B2 is occupied");
-  // } else {
-  //   Serial.println("Lot B2 is vacant");
-  // }
+  delay(1000);
 }
 
 // Servo functions
