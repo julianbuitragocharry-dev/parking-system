@@ -11,6 +11,31 @@ char command;
 // Bluetooth
 SoftwareSerial BT(2, 3); // RX, TX
 
+// Counter
+const int A = A0;
+const int B = A1;
+const int C = A2;
+const int D = A3;
+const int E = A4;
+const int F = A5;
+const int G = 4;
+const int N = 7;
+
+int segmentPins[N] = {A, B, C, D, E, F, G};
+byte digits[10][7] = {
+  {1, 1, 1, 1, 1, 1, 0}, // 0
+  {0, 1, 1, 0, 0, 0, 0}, // 1
+  {1, 1, 0, 1, 1, 0, 1}, // 2
+  {1, 1, 1, 1, 0, 0, 1}, // 3
+  {0, 1, 1, 0, 0, 1, 1}, // 4
+  {1, 0, 1, 1, 0, 1, 1}, // 5
+  {1, 0, 1, 1, 1, 1, 1}, // 6
+  {1, 1, 1, 0, 0, 0, 0}, // 7
+  {1, 1, 1, 1, 1, 1, 1}, // 8
+  {1, 1, 1, 1, 0, 1, 1}  // 9
+};
+const int OFF = HIGH;
+
 // Ultrasonic sensor
 const int trigPin1 = 13;
 const int echoPin1 = 12;
@@ -33,6 +58,8 @@ NewPing lotB2(trigPin4, echoPin4, maxDistance);
 // functions declaration
 void openServo();
 void closeServo();
+void print(int digit);
+int countOnes(String data);
 
 void setup() {
   servo.attach(servoPin);
@@ -40,6 +67,11 @@ void setup() {
   closeServo();
 
   Serial.begin(9600);
+
+  for (int i = 0; i < N; i++) {
+    pinMode(segmentPins[i], OUTPUT);
+    digitalWrite(segmentPins[i], OFF);
+  }
 }
 
 void loop() {
@@ -79,6 +111,10 @@ void loop() {
     Serial.println("Data:: " + sensorData);
     BT.println(sensorData);
     previousData = sensorData;
+
+    int onesCount = countOnes(sensorData);
+    Serial.print("Lots:: " + String(onesCount));
+    print(onesCount);
   }
 
   delay(1000);
@@ -90,5 +126,23 @@ void openServo() {
 }
 
 void closeServo() {
-  servo.write(0);
+  servo.write(180);
+}
+
+// counter functions
+void print(int digit) {
+  for (int i = 0; i < N; i++) {
+    digitalWrite(segmentPins[i], digits[digit][i]);
+  }
+}
+
+int countOnes(String data) {
+  int count = 0;
+  for (int i = 0; i < data.length(); i++) {
+    if (data.charAt(i) == '1') {
+      count++;
+    }
+  }
+
+  return count;
 }
