@@ -113,7 +113,7 @@ void loop() {
     previousData = sensorData;
 
     int onesCount = countOnes(sensorData);
-    Serial.print("Lots:: " + String(onesCount));
+    Serial.print("Lots:: " + String(onesCount) + "\n");
     print(onesCount);
   }
 
@@ -126,7 +126,7 @@ void openServo() {
 }
 
 void closeServo() {
-  servo.write(180);
+  servo.write(170);
 }
 
 // counter functions
