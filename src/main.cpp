@@ -3,6 +3,9 @@
 #include <SoftwareSerial.h>
 #include <NewPing.h>
 
+// Matlab
+String plate;
+
 // Servo
 Servo servo;
 const int servoPin = 5;
@@ -75,21 +78,21 @@ void setup() {
 }
 
 void loop() {
+  // Matlab
+  if (Serial.available() > 0) {
+    plate = Serial.readString();
+    BT.print(plate);
+  }
+
   // Servo system
   if(BT.available() > 0) {
-    BT.write("Command received:::");
     command = BT.read();
-    BT.write(command);
   }
 
   if (command == 'O') {
     openServo();
-    Serial.println("Servo opened::" + command);
-    BT.println("Servo opened::" + command);
   } else if (command == 'C') {
     closeServo();
-    Serial.println("Servo closed::" + command);
-    BT.println("Servo closed::" + command);
   }
 
   // Ultrasonic sensor system
@@ -108,12 +111,10 @@ void loop() {
   sensorData += (distance < 4) ? "0" : "1";
 
   if (sensorData != previousData) {
-    Serial.println("Data:: " + sensorData);
     BT.println(sensorData);
     previousData = sensorData;
 
     int onesCount = countOnes(sensorData);
-    Serial.print("Lots:: " + String(onesCount) + "\n");
     print(onesCount);
   }
 
